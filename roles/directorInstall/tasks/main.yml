@@ -1,0 +1,53 @@
+---
+#Launch the Cloud Formation Template located in files/sample.json & Register the output.
+#- name: return motd to registered var
+
+- command: uaac target "https://{{Route53Record}}/uaa" --skip-ssl-validation
+
+
+- name: return var
+  command: uaac token owner get opsman "{{AdminUserName}}" -p "{{AdminPassword}}" -s ""
+
+- name: get context
+  shell: "uaac context saedalav@gmail.com | grep -o -P '(?<=access_token:\ ).*(?=)'"
+  register: context
+
+- set_fact:
+    UAA_ACCESS_TOKEN: "{{context.stdout}}"   
+
+
+- name: configure NetWork and AZ
+  uri:
+    url: "https://{{Route53Record}}/api/v0/installations"
+    return_content: yes
+    method: POST
+    validate_certs: no
+    headers:
+      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+      Content-Type: "application/json"
+    body: 
+      ignore_warnings: true
+    body_format: json
+
+- pause:
+    minutes: 5
+    prompt: "Waiting 5 minutes before checking Ops Manager director Installation Status"
+
+- name: Check the status of the Installation to see if Ops Man director is installed or not
+  uri:
+    url: "https://{{Route53Record}}/api/v0/installations/1"
+    return_content: yes
+    method: GET
+    validate_certs: no
+    headers:
+      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+      Content-Type: "application/json"
+    body_format: json
+  retries: 5
+  delay: 500
+  register: status
+  until: status.json.status=="succeeded"
+  ignore_errors: yes
+
+- debug: 
+   msg: "{{status.json.status}}"

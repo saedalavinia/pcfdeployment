@@ -1,0 +1,25 @@
+---
+# Launch the Cloud Formation Template located in files/sample.json & Register the output.
+- name: launch ansible cloudformation example
+  cloudformation: >
+    stack_name="{{StackName}}"
+    state=present
+    region="{{Region}}"
+    disable_rollback=true
+    template="{{TemplateLocation}}"
+  args:
+    template_parameters:
+      01NATKeyPair: "{{NATKeyPair}}"
+      02NATInstanceType: "{{NATInstanceType}}"
+#     03OpsManagerIngress: "{{OpsManagerIngress}}"
+#     04RdsDBName: "{{RdsDBName}}"
+      05RdsUsername: "{{RdsUsername}}"
+      06RdsPassword: "{{RdsPassword}}"
+      07SSLCertificateARN: "{{SSLCertificateARN}}"
+      08OpsManagerTemplate: "{{OpsManagerTemplate}}"
+#     09ElbPrefix: "{{ElbPrefix}}"
+#     10AllowHttpOnElb: "{{AllowHttpOnElb}}"
+  register: stack
+
+- name: show stack outputs
+  debug: msg="My stack outputs are {{stack.stack_outputs}}"

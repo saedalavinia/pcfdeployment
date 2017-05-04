@@ -1,0 +1,80 @@
+---
+#Launch the Cloud Formation Template located in files/sample.json & Register the output.
+#- name: return motd to registered var
+#  command: uaac target "https://{{Route53Record}}/uaa" --skip-ssl-validation
+
+#- name: return var
+#  command: uaac token owner get opsman "{{AdminUserName}}" -p "{{AdminPassword}}" -s ""
+
+#- name: get context
+#  command: uaac context {{AdminUserName}}
+#  register: context
+
+- name: get context
+  shell: "uaac context saedalav@gmail.com | grep -o -P '(?<=access_token:\ ).*(?=)'"
+  register: UAA_ACCESS_TOKEN
+
+
+
+#- debug: 
+#    msg: "{{UAA_ACCESS_TOKEN}}"
+
+#- shell: cat /home/saedalav/.uaac.yml
+#  register: myvar
+
+- cloudformation_facts:
+    stack_name: '{{StackName}}'
+    all_facts: false
+  register: stack_facts
+
+- ec2_group_facts:
+    filters:
+      description: PCF VMs Security Group
+  register: group
+
+- set_fact:
+    group_id: "{{group.security_groups[0].group_id}}"
+
+
+
+
+- set_fact:
+    Outputs: "{{stack_facts.ansible_facts.cloudformation[StackName]['stack_outputs']}}"
+
+- set_fact:
+    PcfPublicSubnetAvailabilityZone: "{{Outputs['PcfPublicSubnetAvailabilityZone']}}"
+    PcfPrivateSubnetAvailabilityZone: "{{Outputs['PcfPrivateSubnetAvailabilityZone']}}"
+    PcfPrivateSubnet2AvailabilityZone: "{{Outputs['PcfPrivateSubnet2AvailabilityZone']}}"
+    PcfElasticRuntimeS3DropletsBucket: "{{Outputs['PcfElasticRuntimeS3DropletsBucket']}}"
+    PcfElbSshDnsName: "{{Outputs['PcfElbSshDnsName']}}"
+    PcfVmsSecurityGroupId: "{{Outputs['PcfVmsSecurityGroupId']}}"
+    PcfElasticRuntimeS3BuildpacksBucket: "{{Outputs['PcfElasticRuntimeS3BuildpacksBucket']}}"
+    PcfVpc: "{{Outputs['PcfVpc']}}"
+    PcfPublicSubnetId: "{{Outputs['PcfPublicSubnetId']}}"
+    PcfRdsPassword: "{{Outputs['PcfRdsPassword']}}"
+    PcfIamUserName: "{{Outputs['PcfIamUserName']}}"
+    PcfPrivateSubnet2Id: "{{Outputs['PcfPrivateSubnet2Id']}}"
+    PcfRdsDBName: "{{Outputs['PcfRdsDBName']}}"
+    PcfOpsManagerS3Bucket: "{{Outputs['PcfOpsManagerS3Bucket']}}"
+    PcfPublicSubnetId2: "{{Outputs['PcfPublicSubnetId2']}}"
+    PcfElasticRuntimeS3PackagesBucket: "{{Outputs['PcfElasticRuntimeS3PackagesBucket']}}"
+    PcfIamUserSecretAccessKey: "{{Outputs['PcfIamUserSecretAccessKey']}}"
+    PcfIamUserAccessKey: "{{Outputs['PcfIamUserAccessKey']}}"
+    PcfRdsPort: "{{Outputs['PcfRdsPort']}}"
+    PcfRdsUsername: "{{Outputs['PcfRdsUsername']}}"
+    PcfElbDnsName: "{{Outputs['PcfElbDnsName']}}"
+    PcfPrivateSubnetId: "{{Outputs['PcfPrivateSubnetId']}}"
+    PcfElasticRuntimeS3ResourcesBucket: "{{Outputs['PcfElasticRuntimeS3ResourcesBucket']}}"
+    PcfRdsAddress: "{{Outputs['PcfRdsAddress']}}"
+    PcfElbTcpDnsName: "{{Outputs['PcfElbTcpDnsName']}}"
+    PcfOpsManagerSecurityGroupId: "{{Outputs['PcfOpsManagerSecurityGroupId']}}"
+    PcfPublicSubnetAvailabilityZone2: "{{Outputs['PcfPublicSubnetAvailabilityZone2']}}"
+
+
+- name: Execute Shell Script
+  script: "roles/erdeploy/files/curl.sh https://{{Route53Record}}/api/v0/available_products {{UAA_ACCESS_TOKEN}}"
+  register: output
+
+- debug: 
+    msg: "{{output}}"
+ 

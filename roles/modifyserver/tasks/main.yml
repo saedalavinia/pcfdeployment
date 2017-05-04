@@ -1,0 +1,41 @@
+---
+#Launch the Cloud Formation Template located in files/sample.json & Register the output.
+#- name: return motd to registered var
+#  command: uaac target "https://{{Route53Record}}/uaa" --skip-ssl-validation
+
+#- name: return var
+#  command: uaac token owner get opsman "{{AdminUserName}}" -p "{{AdminPassword}}" -s ""
+
+#- name: get context
+#  command: uaac context {{AdminUserName}}
+#  register: context
+
+- name: update
+  command: "sudo apt-get update"
+
+- name: Install pip
+  apt:
+    name: python-pip
+    update_cache: yes
+    state: latest
+
+- name: Install expect
+  command: "sudo pip install pexpect"
+
+- name: Execute
+  expect:
+    command: "sudo -u tempest-web RAILS_ENV=production /home/tempest-web/tempest/web/scripts/decrypt /var/tempest/workspaces/default/installation.yml /tmp/installation.yml"
+    responses:
+      Passphrase: "mypass"
+
+- name: Replace 1
+  command: "sed -i -e 's/blobstore_type:\ local/blobstore_type:\ s3/g' /tmp/installation.yml"
+
+- name: Replace 2
+  command: "sed -i -e 's/database_type:\ internal/database_type:\ external/g' /tmp/installation.yml"
+
+- name: Execute
+  expect:
+    command: "sudo -u tempest-web RAILS_ENV=production /home/tempest-web/tempest/web/scripts/encrypt /tmp/installation.yml /var/tempest/workspaces/default/installation.yml"
+    responses:
+      Passphrase: "mypass"

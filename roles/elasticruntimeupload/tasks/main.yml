@@ -1,0 +1,25 @@
+---
+#Launch the Cloud Formation Template located in files/sample.json & Register the output.
+#- name: return motd to registered var
+#  command: uaac target "https://{{Route53Record}}/uaa" --skip-ssl-validation
+
+#- name: return var
+#  command: uaac token owner get opsman "{{AdminUserName}}" -p "{{AdminPassword}}" -s ""
+
+#- name: get context
+#  command: uaac context {{AdminUserName}}
+#  register: context
+
+- name: get context
+  shell: "uaac context saedalav@gmail.com | grep -o -P '(?<=access_token:\ ).*(?=)'"
+  register: UAA_ACCESS_TOKEN
+
+
+
+- name: Execute Shell Script
+  script: "roles/elasticruntimeupload/files/curl.sh https://{{Route53Record}}/api/v0/available_products {{UAA_ACCESS_TOKEN}}"
+  register: output
+
+- debug: 
+    msg: "{{output}}"
+ 

@@ -1,0 +1,58 @@
+---
+
+- name: Deploy CloudFormation Template for Configuring Pivotal Cloud Foundry on AWS. 
+  hosts: localhost
+  connection: local
+  roles: 
+   - cloudformation
+
+- name: Deploying Ops Manager and Configuring Security. 
+  hosts: localhost
+  connection: local
+  roles: 
+   - opsmanagerdeploy
+
+- name: Configuring Operations Manager Director
+  hosts: localhost
+  connection: local
+  roles: 
+   - directorConfig
+
+- name: Getting the IP Address of Ops Manager 
+  hosts: localhost
+  connection: local
+  tasks: 
+  - ec2_remote_facts:
+      region: us-east-1
+      filters:
+        instance-state-name: running
+        "tag:Name": Ops Manager
+    register: ec2_remote_facts
+
+  - name: Add box
+    add_host:
+      hostname: "{{ item.public_ip_address }}"
+      groups: opsman
+    with_items: "{{ ec2_remote_facts.instances }}"
+  
+- name: Attempting to SSH to Opsman
+  hosts: opsman
+  remote_user: ubuntu
+  become: true
+  roles: 
+   - modifyserver
+  
+- name: Installing Director
+  hosts: localhost
+  connection: local
+  roles: 
+   - directorInstall
+   - elasticruntimeupload
+
+- name: Upload Elastic Runtime
+  hosts: localhost
+  connection: local
+  roles: 
+   - elasticruntimeupload
+
+
