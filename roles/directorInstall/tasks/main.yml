@@ -30,8 +30,8 @@
     body_format: json
 
 - pause:
-    minutes: 5
-    prompt: "Waiting 5 minutes before checking Ops Manager director Installation Status"
+    minutes: 10
+    prompt: "Waiting 10 minutes before checking Ops Manager director Installation Status"
 
 - name: Check the status of the Installation to see if Ops Man director is installed or not
   uri:
@@ -43,8 +43,8 @@
       Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
       Content-Type: "application/json"
     body_format: json
-  retries: 5
-  delay: 500
+  retries: 10
+  delay: 60
   register: status
   until: status.json.status=="succeeded"
   ignore_errors: yes
