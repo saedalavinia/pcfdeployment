@@ -1,25 +1,19 @@
 ---
-#Launch the Cloud Formation Template located in files/sample.json & Register the output.
-#- name: return motd to registered var
-#  command: uaac target "https://{{Route53Record}}/uaa" --skip-ssl-validation
 
-- command: uaac target "https://{{Route53Record}}/uaa" --skip-ssl-validation
 
-- name: return var
-  command: uaac token owner get opsman "{{AdminUserName}}" -p "{{AdminPassword}}" -s ""
+- name: Setting uaac target
+  command: "uaac target https://{{Route53Record}}/uaa --skip-ssl-validation"
 
-- name: get context
+- name: Obtaining API Token from Director
+  command: "uaac token owner get opsman {{AdminUserName}} -p {{AdminPassword}} -s '' "
+
+- name: Extracting UAAC access_token
   shell: "uaac context saedalav@gmail.com | grep -o -P '(?<=access_token:\ ).*(?=)'"
   register: context
 
 - set_fact:
     UAA_ACCESS_TOKEN: "{{context.stdout}}"   
 
-#- debug: 
-#    msg: "{{UAA_ACCESS_TOKEN}}"
-
-#- shell: cat /home/saedalav/.uaac.yml
-#  register: myvar
 
 - cloudformation_facts:
     stack_name: '{{StackName}}'

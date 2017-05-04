@@ -6,7 +6,7 @@ NATKeyPair: us-east-1
 OpsManInstanceType: t2.medium
 AMIID: ami-e6bdd9f0
 Route53Zone: alavinia.me
-Route53Record: moni.alavinia.me
+Route53Record: mon.alavinia.me
 Route53Type: A
 
 DecryptionPassphrase: mypass
