@@ -10,16 +10,22 @@
 #  command: uaac context {{AdminUserName}}
 #  register: context
 
-- name: get context
+
+- name: Extracting UAAC access_token
   shell: "uaac context saedalav@gmail.com | grep -o -P '(?<=access_token:\ ).*(?=)'"
-  register: UAA_ACCESS_TOKEN
+  register: context
+
+- set_fact:
+    UAA_ACCESS_TOKEN: "{{context.stdout}}"   
 
 
 
 - name: Execute Shell Script
-  script: "roles/elasticruntimeupload/files/curl.sh https://{{Route53Record}}/api/v0/available_products {{UAA_ACCESS_TOKEN}}"
+  shell: "curl https://{{Route53Record}}/api/v0/available_products -v -k -X POST -H 'Authorization:\ Bearer {{UAA_ACCESS_TOKEN}}' -F product[file]=@/home/saedalav/Documents/PCF/roles/elasticruntimeupload/files/cf.pivotal"
+#  comman: "roles/elasticruntimeupload/files/curl.sh  {{UAA_ACCESS_TOKEN}}"
   register: output
 
 - debug: 
     msg: "{{output}}"
  
+

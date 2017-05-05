@@ -9,7 +9,7 @@ source /home/saedalav/.bashrc
 echo "Starting Ansible Commands"
 echo "-------------------------"
 
-ansible-playbook deployAll.yml -vvv
+ansible-playbook elasticruntime.yml -vvv
 
 
 echo "Ansible Command Completed"

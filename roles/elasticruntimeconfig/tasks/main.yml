@@ -1,0 +1,157 @@
+---
+
+
+#- name: Setting uaac target
+#  command: "uaac target https://{{Route53Record}}/uaa --skip-ssl-validation"
+
+#- name: Obtaining API Token from Director
+#  command: "uaac token owner get opsman {{AdminUserName}} -p {{AdminPassword}} -s '' "
+
+- name: Extracting UAAC access_token
+  shell: "uaac context saedalav@gmail.com | grep -o -P '(?<=access_token:\ ).*(?=)'"
+  register: context
+
+- set_fact:
+    UAA_ACCESS_TOKEN: "{{context.stdout}}"   
+
+
+- cloudformation_facts:
+    stack_name: '{{StackName}}'
+    all_facts: false
+  register: stack_facts
+
+- ec2_group_facts:
+    filters:
+      description: PCF VMs Security Group
+  register: group
+
+- set_fact:
+    group_id: "{{group.security_groups[0].group_id}}"
+
+
+
+
+- set_fact:
+    Outputs: "{{stack_facts.ansible_facts.cloudformation[StackName]['stack_outputs']}}"
+
+- set_fact:
+    PcfPublicSubnetAvailabilityZone: "{{Outputs['PcfPublicSubnetAvailabilityZone']}}"
+    PcfPrivateSubnetAvailabilityZone: "{{Outputs['PcfPrivateSubnetAvailabilityZone']}}"
+    PcfPrivateSubnet2AvailabilityZone: "{{Outputs['PcfPrivateSubnet2AvailabilityZone']}}"
+    PcfElasticRuntimeS3DropletsBucket: "{{Outputs['PcfElasticRuntimeS3DropletsBucket']}}"
+    PcfElbSshDnsName: "{{Outputs['PcfElbSshDnsName']}}"
+    PcfVmsSecurityGroupId: "{{Outputs['PcfVmsSecurityGroupId']}}"
+    PcfElasticRuntimeS3BuildpacksBucket: "{{Outputs['PcfElasticRuntimeS3BuildpacksBucket']}}"
+    PcfVpc: "{{Outputs['PcfVpc']}}"
+    PcfPublicSubnetId: "{{Outputs['PcfPublicSubnetId']}}"
+    PcfRdsPassword: "{{Outputs['PcfRdsPassword']}}"
+    PcfIamUserName: "{{Outputs['PcfIamUserName']}}"
+    PcfPrivateSubnet2Id: "{{Outputs['PcfPrivateSubnet2Id']}}"
+    PcfRdsDBName: "{{Outputs['PcfRdsDBName']}}"
+    PcfOpsManagerS3Bucket: "{{Outputs['PcfOpsManagerS3Bucket']}}"
+    PcfPublicSubnetId2: "{{Outputs['PcfPublicSubnetId2']}}"
+    PcfElasticRuntimeS3PackagesBucket: "{{Outputs['PcfElasticRuntimeS3PackagesBucket']}}"
+    PcfIamUserSecretAccessKey: "{{Outputs['PcfIamUserSecretAccessKey']}}"
+    PcfIamUserAccessKey: "{{Outputs['PcfIamUserAccessKey']}}"
+    PcfRdsPort: "{{Outputs['PcfRdsPort']}}"
+    PcfRdsUsername: "{{Outputs['PcfRdsUsername']}}"
+    PcfElbDnsName: "{{Outputs['PcfElbDnsName']}}"
+    PcfPrivateSubnetId: "{{Outputs['PcfPrivateSubnetId']}}"
+    PcfElasticRuntimeS3ResourcesBucket: "{{Outputs['PcfElasticRuntimeS3ResourcesBucket']}}"
+    PcfRdsAddress: "{{Outputs['PcfRdsAddress']}}"
+    PcfElbTcpDnsName: "{{Outputs['PcfElbTcpDnsName']}}"
+    PcfOpsManagerSecurityGroupId: "{{Outputs['PcfOpsManagerSecurityGroupId']}}"
+    PcfPublicSubnetAvailabilityZone2: "{{Outputs['PcfPublicSubnetAvailabilityZone2']}}"
+
+
+
+
+
+- name: configure Ops Manager Security
+  uri:
+    url: "https://{{Route53Record}}/api/v0/staged/director/properties"
+    return_content: yes
+    method: PUT
+    validate_certs: no
+    headers:
+      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+      Content-Type: "application/json"
+    body: 
+      iaas_configuration: 
+        access_key_id: "{{PcfIamUserAccessKey}}"
+        secret_access_key: "{{PcfIamUserSecretAccessKey}}"
+        vpc_id: "{{PcfVpc}}"
+        security_group: "{{group_id}}"
+        key_pair_name: "{{KeyPair}}"
+        ssh_private_key: "{{ssh_private_key}}"
+        region: "{{Region}}"
+      director_configuration:
+        ntp_servers_string: "0.amazon.pool.ntp.org,1.amazon.pool.ntp.org"
+        resurrector_enabled: true
+#        blobstore_type: "s3"
+        s3_blobstore_options: 
+          endpoint: "https://s3.amazonaws.com"
+          bucket_name: "{{PcfOpsManagerS3Bucket}}"
+          access_key: "{{PcfIamUserAccessKey}}"
+          secret_key: "{{PcfIamUserSecretAccessKey}}"
+          signature_version: '2'
+        external_database_options:
+          host: "{{PcfRdsAddress}}"
+          port: "{{PcfRdsPort}}"
+          user: "{{PcfRdsUsername}}"
+          password: "{{PcfRdsPassword}}"
+          database: "{{PcfRdsDBName}}"
+      security_configuration:
+#        trusted_certificates: "—– BEGIN SSL CERTIFICATE —– ... "
+        generate_vm_passwords: false
+    body_format: json
+#  retries: 3
+#  delay: 60
+#  register: result
+#  until: result|succeeded
+#  ignore_errors: yes
+
+#- name: report error
+#  fail:
+#    msg: "Failed"
+#  when: result|failed
+
+
+
+
+- name: Check To see if ElasticRuntime is available 
+  uri:
+    url: "https://{{Route53Record}}/api/v0/available_products"
+    return_content: yes
+    method: GET
+    validate_certs: no
+    headers:
+      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+      Content-Type: "application/json"
+  register: available
+
+- set_fact: 
+    ProductName: "{{available.json[0].name}}"
+    ProductVersion: "{{available.json[0].product_version}}"
+
+- debug: 
+    msg: "The available product is {{ProductName}} with version {{ProductVersion}}"
+
+
+
+
+
+- name: Adding The available Product to staged
+  uri:
+    url: "https://{{Route53Record}}/api/v0/staged/products"
+    return_content: yes
+    method: POST
+    validate_certs: no
+    headers:
+      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+      Content-Type: "application/json"
+    body: 
+      name: "{{ProductName}}"
+      product_version: "{{ProductVersion}}"
+    body_format: json
+
