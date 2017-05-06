@@ -16,21 +16,3 @@ KeyPair: us-east-1
 ssh_private_key: "{{ lookup('file', '~/.ssh/us-east-1.pem') }}"
 ElasticRuntimeFilePath: "/home/saedalav/Documents/PCF/roles/elasticruntimeupload/files/cf.pivotal"
 
-#Region: us-east-1
-#NATKeyPair: us-east-1
-#OpsManInstanceType: t2.medium
-#AMIID: ami-8d48da9b
-#Route53Zone: alavinia.me
-#Route53Record: monitor.alavinia.me
-#Route53Type: A
-#OpsManagerIngress: 0.0.0.0/0
-#RdsDBName: bosh
-#RdsUsername: bosh
-#RdsPassword: bosh2017
-#SSLCertificateARN: arn:aws:acm:us-east-1:920949869295:certificate/57feaa67-78e3-4f09-b933-34c2244c17f5
-#OpsManagerTemplate: https://s3.amazonaws.com/saedalav/ops-manager.json
-#ElbPrefix: 
-#AllowHttpOnElb: True
-
-
-
