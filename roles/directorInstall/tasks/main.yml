@@ -16,7 +16,7 @@
     UAA_ACCESS_TOKEN: "{{context.stdout}}"   
 
 
-- name: configure NetWork and AZ
+- name: Initiate the Installation Process of Director | BOSH
   uri:
     url: "https://{{Route53Record}}/api/v0/installations"
     return_content: yes

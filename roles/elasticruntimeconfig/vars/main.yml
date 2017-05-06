@@ -4,7 +4,11 @@ StackName: pcf-stack
 DecryptionPassphrase: mypass
 AdminUserName: saedalav@gmail.com
 AdminPassword: mypass
+Route53Zone: alavinia.me
+ElasticRuntimeDBAEmail: saedalav@gmail.com
 Route53Record: mon.alavinia.me
+RuntimeAppDomain: "apps.alavinia.me"
+RuntimeSystemDomain: "system.alavinia.me"
 Region: us-east-1
 KeyPair: us-east-1
 ssh_private_key: "{{ lookup('file', '~/.ssh/us-east-1.pem') }}"
