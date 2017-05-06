@@ -1,4 +1,8 @@
 ---
+#Author: Saed Alavinia 
+#Email: saedalav@gmail.com 
+#Github: github.com/saedalav 
+
 # Launch the Cloud Formation Template located in files/sample.json & Register the output.
 - name: launch ansible cloudformation example
   cloudformation: >

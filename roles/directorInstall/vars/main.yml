@@ -1,5 +1,9 @@
 ---
-# vars file for pcf
+#Author: Saed Alavinia 
+#Email: saedalav@gmail.com 
+#Github: github.com/saedalav 
+
+# Vars for directorInstall
 StackName: pcf-stack
 DecryptionPassphrase: mypass
 AdminUserName: saedalav@gmail.com

@@ -1,5 +1,10 @@
 ---
-# vars file for pcf
+#Author: Saed Alavinia 
+#Email: saedalav@gmail.com 
+#Github: github.com/saedalav 
+
+
+# Vars for CloudFormation Role
 StackName: pcf-stack
 Region: us-east-1
 TemplateLocation: roles/cloudformation/files/pcf.json

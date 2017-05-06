@@ -1,6 +1,7 @@
 ---
-#Launch the Cloud Formation Template located in files/sample.json & Register the output.
-#- name: return motd to registered var
+#Author: Saed Alavinia 
+#Email: saedalav@gmail.com 
+#Github: github.com/saedalav 
 
 - command: uaac target "https://{{Route53Record}}/uaa" --skip-ssl-validation
 
