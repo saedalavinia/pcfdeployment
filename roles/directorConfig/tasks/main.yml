@@ -17,11 +17,6 @@
     UAA_ACCESS_TOKEN: "{{context.stdout}}"   
 
 
-- cloudformation_facts:
-    stack_name: '{{StackName}}'
-    all_facts: false
-  register: stack_facts
-
 - ec2_group_facts:
     filters:
       description: PCF VMs Security Group
@@ -29,14 +24,21 @@
 
 - set_fact:
     group_id: "{{group.security_groups[0].group_id}}"
+	
 
+# Gather FActs on the output of the Cloudformation Stack named "{{StackName}}"
+- name: Gathering Facts About Cloud Formation Stack
+  cloudformation_facts:
+    stack_name: '{{StackName}}'
+    all_facts: false
+  register: stack_facts
 
-
-
-- set_fact:
+- name: Extract Cloud formation Output Dictionary 
+  set_fact:
     Outputs: "{{stack_facts.ansible_facts.cloudformation[StackName]['stack_outputs']}}"
 
-- set_fact:
+- name: Extract variables from Cloud Formation Output Dictionary
+  set_fact:
     PcfPublicSubnetAvailabilityZone: "{{Outputs['PcfPublicSubnetAvailabilityZone']}}"
     PcfPrivateSubnetAvailabilityZone: "{{Outputs['PcfPrivateSubnetAvailabilityZone']}}"
     PcfPrivateSubnet2AvailabilityZone: "{{Outputs['PcfPrivateSubnet2AvailabilityZone']}}"
@@ -107,16 +109,7 @@
 #        trusted_certificates: "—– BEGIN SSL CERTIFICATE —– ... "
         generate_vm_passwords: false
     body_format: json
-#  retries: 3
-#  delay: 60
-#  register: result
-#  until: result|succeeded
-#  ignore_errors: yes
 
-#- name: report error
-#  fail:
-#    msg: "Failed"
-#  when: result|failed
 
 
 

@@ -1,14 +1,22 @@
 ---
-# Launch the Cloud Formation Template located in files/sample.json & Register the output.
-- cloudformation_facts:
+#Author: Saed Alavinia 
+#Email: saedalav@gmail.com 
+#Github: github.com/saedalav 
+
+
+# Gather FActs on the output of the Cloudformation Stack named "{{StackName}}"
+- name: Gathering Facts About Cloud Formation Stack
+  cloudformation_facts:
     stack_name: '{{StackName}}'
     all_facts: false
   register: stack_facts
 
-- set_fact:
+- name: Extract Cloud formation Output Dictionary 
+  set_fact:
     Outputs: "{{stack_facts.ansible_facts.cloudformation[StackName]['stack_outputs']}}"
 
-- set_fact:
+- name: Extract variables from Cloud Formation Output Dictionary
+  set_fact:
     PcfPublicSubnetAvailabilityZone: "{{Outputs['PcfPublicSubnetAvailabilityZone']}}"
     PcfPrivateSubnetAvailabilityZone: "{{Outputs['PcfPrivateSubnetAvailabilityZone']}}"
     PcfPrivateSubnet2AvailabilityZone: "{{Outputs['PcfPrivateSubnet2AvailabilityZone']}}"
@@ -38,7 +46,8 @@
     PcfPublicSubnetAvailabilityZone2: "{{Outputs['PcfPublicSubnetAvailabilityZone2']}}"
 
 
-- ec2:
+- name: Launch an EC2 Instance from an Ops Manager AMI
+  ec2:
     key_name: "{{NATKeyPair}}"
     region: "{{Region}}"
     instance_type: "{{OpsManInstanceType}}" 
@@ -71,7 +80,8 @@
     timeout: 320
   with_items: "{{ ec2.instances }}"
 
-- route53:
+- name: Add a route53 record
+  route53:
     command: create
     zone: "{{Route53Zone}}"
     record: "{{Route53Record}}"
@@ -106,12 +116,13 @@
   until: result|succeeded
   ignore_errors: yes
 
-- name: report error
+- name: Report Error or Ignore if Successful
   fail:
     msg: 'Unable to download {{result.url}} {{result.response|default(result.msg)}}'
   when: not result|succeeded
 
-- pause:
+- name: Pause so that Ops Manager Authentication Starts 
+  pause:
     minutes: 2
     prompt: "Waiting for Ops Manager Authentication to Start"
 
