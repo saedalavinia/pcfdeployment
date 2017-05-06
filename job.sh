@@ -1,10 +1,13 @@
 #!/bin/bash
 
-cd /home/saedalav/Documents/PCF
+email=saedalav@gmail.com
+output_path=/home/saedalav/Desktop/output.txt
+root_directory=/home/saedalav/Documents/PCF
+
+cd $root_directory
 
 source /home/saedalav/.bashrc
-#eval 'ssh-agent'
-#ssh-add /home/saedalav/.ssh/us-east-1.pem
+
 
 echo "Starting Ansible Commands"
 echo "-------------------------"
@@ -18,7 +21,7 @@ echo "-------------------------"
 echo "Sending Email:"
 echo "-------------------------"
 
-cat /home/saedalav/Desktop/output.txt | mail -s "Ansible Output Logs" saedalav@gmail.com
+cat $output_path | mail -s "Ansible Output Logs" $email
 
 
 echo "Job Finished Successfully"

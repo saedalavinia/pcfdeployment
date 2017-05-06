@@ -50,7 +50,7 @@
   connection: local
   roles: 
    - directorInstall
-   - elasticruntimeupload
+
 
 - name: Upload Elastic Runtime
   hosts: localhost

@@ -24,7 +24,7 @@
 
 - set_fact:
     group_id: "{{group.security_groups[0].group_id}}"
-	
+
 
 # Gather FActs on the output of the Cloudformation Stack named "{{StackName}}"
 - name: Gathering Facts About Cloud Formation Stack
