@@ -60,14 +60,14 @@ This section requires a username and password for Operations Manager for which A
 ###### directoryconfig: 
 This role uses Operations Manager API to configure Ops Manager Director (with the help of CF UAAC to generate API token). Keep in mind that there is a bug in their API that does not allow seeting the external database and blobstore location using the API. I created another role that SSH to the server and manually replaces the Installation.yml file. I do understand that this is not safe and should not be used. However, for the demonstration purposes (and to obtain a fully automated pipeline) I chose to do this. 
 
-#####  modifyserver
+###### modifyserver
 This role SSH to the Ops Manager server to manually modify the Installation.yml due to a bug in their API
 
-##### directorInstall
+###### directorInstall
 This role initiates installation of Director and deployment of BOSH, followed by pasuing and polling to see if it is successfully installed. 
 
-#### elasticruntimeupload
+###### elasticruntimeupload
 This role uploads the image for elasticruntime (appx 6.1 GB) and neeeds to be available in the path. This is very important to be performed by an AWS machine (AMI prepared, but currently private as I can't share PCF's contents). 
 
-####  elastricruntimeconfig
+###### elastricruntimeconfig
 This role check to see if elasticruntime is available, stages it, configures it, and then initiates an install. This step creates 21 EC2 images and you must have increased your AWS account limit in order to perform this.
