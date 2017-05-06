@@ -65,92 +65,38 @@
 
 
 
-
-
-- name: configure Ops Manager Security
+- name: Check To see if ElasticRuntime is available 
   uri:
-    url: "https://{{Route53Record}}/api/v0/staged/director/properties"
+    url: "https://{{Route53Record}}/api/v0/available_products"
     return_content: yes
-    method: PUT
+    method: GET
+    validate_certs: no
+    headers:
+      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+      Content-Type: "application/json"
+  register: available
+
+- set_fact: 
+    ProductName: "{{available.json[0].name}}"
+    ProductVersion: "{{available.json[0].product_version}}"
+
+- debug: 
+    msg: "The available product is {{ProductName}} with version {{ProductVersion}}"
+
+
+- name: Adding The available Product to staged
+  uri:
+    url: "https://{{Route53Record}}/api/v0/staged/products"
+    return_content: yes
+    method: POST
     validate_certs: no
     headers:
       Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
       Content-Type: "application/json"
     body: 
-      iaas_configuration: 
-        access_key_id: "{{PcfIamUserAccessKey}}"
-        secret_access_key: "{{PcfIamUserSecretAccessKey}}"
-        vpc_id: "{{PcfVpc}}"
-        security_group: "{{group_id}}"
-        key_pair_name: "{{KeyPair}}"
-        ssh_private_key: "{{ssh_private_key}}"
-        region: "{{Region}}"
-      director_configuration:
-        ntp_servers_string: "0.amazon.pool.ntp.org,1.amazon.pool.ntp.org"
-        resurrector_enabled: true
-#        blobstore_type: "s3"
-        s3_blobstore_options: 
-          endpoint: "https://s3.amazonaws.com"
-          bucket_name: "{{PcfOpsManagerS3Bucket}}"
-          access_key: "{{PcfIamUserAccessKey}}"
-          secret_key: "{{PcfIamUserSecretAccessKey}}"
-          signature_version: '2'
-        external_database_options:
-          host: "{{PcfRdsAddress}}"
-          port: "{{PcfRdsPort}}"
-          user: "{{PcfRdsUsername}}"
-          password: "{{PcfRdsPassword}}"
-          database: "{{PcfRdsDBName}}"
-      security_configuration:
-#        trusted_certificates: "—– BEGIN SSL CERTIFICATE —– ... "
-        generate_vm_passwords: false
+      name: "{{ProductName}}"
+      product_version: "{{ProductVersion}}"
     body_format: json
-#  retries: 3
-#  delay: 60
-#  register: result
-#  until: result|succeeded
-#  ignore_errors: yes
-
-#- name: report error
-#  fail:
-#    msg: "Failed"
-#  when: result|failed
-
-
-
-
-#- name: Check To see if ElasticRuntime is available 
-#  uri:
-#    url: "https://{{Route53Record}}/api/v0/available_products"
-#    return_content: yes
-#    method: GET
-#    validate_certs: no
-#    headers:
-#      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
-#      Content-Type: "application/json"
-#  register: available
-
-#- set_fact: 
-#    ProductName: "{{available.json[0].name}}"
-#    ProductVersion: "{{available.json[0].product_version}}"
-
-#- debug: 
-#    msg: "The available product is {{ProductName}} with version {{ProductVersion}}"
-
-
-#- name: Adding The available Product to staged
-#  uri:
-#    url: "https://{{Route53Record}}/api/v0/staged/products"
-#    return_content: yes
-#    method: POST
-#    validate_certs: no
-#    headers:
-#      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
-#      Content-Type: "application/json"
-#    body: 
-#      name: "{{ProductName}}"
-#      product_version: "{{ProductVersion}}"
-#    body_format: json
 
 
 
@@ -194,24 +140,24 @@
 
 
 
-#- name: Create a Route53 CNAME for Runtime System Domain
-#  route53:
-#      command: create
-#      zone: "{{Route53Zone}}"
-#      record: "*.{{RuntimeSystemDomain}}"
-#      type: CNAME
-#      value: "{{PcfElbDnsName}}"
-#      ttl: 30
+- name: Create a Route53 CNAME for Runtime System Domain
+  route53:
+      command: create
+      zone: "{{Route53Zone}}"
+      record: "*.{{RuntimeSystemDomain}}"
+      type: CNAME
+      value: "{{PcfElbDnsName}}"
+      ttl: 30
 
 
-#- name: Create a Route53 CNAME for Runtime Apps Domain
-#  route53:
-#      command: create
-#      zone: "{{Route53Zone}}"
-#      record: "{{RuntimeAppDomain}}"
-#      type: CNAME
-#      value: "{{PcfElbDnsName}}"
-#      ttl: 30
+- name: Create a Route53 CNAME for Runtime Apps Domain
+  route53:
+      command: create
+      zone: "{{Route53Zone}}"
+      record: "{{RuntimeAppDomain}}"
+      type: CNAME
+      value: "{{PcfElbDnsName}}"
+      ttl: 30
     
 
 - name: Configuring Elastic Runtime System Domain and App Domain
@@ -322,85 +268,89 @@
 
 
 
-- set_fact: 
-    NSFGUID: "{{item.guid}}"
-  with_items: "{{joblist.json.jobs}}"
-  when: item.name == "nfs_server"
-
-- name: Check and Obtain Elastic Runtime's GUID 
-  uri:
-    url: "https://{{Route53Record}}/api/v0/staged/products/{{ProductGUID}}/jobs/{{NSFGUID}}/resource_config"
-    return_content: yes
-    method: PUT
-    validate_certs: no
-    headers:
-      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
-      Content-Type: "application/json"
-    body: 
-      instance_type:
-        id: automatic
-      instances: 0
-      elb_names: []
-      internet_connected: false
-      persistent_disk:
-        size_mb: '102400'
-    body_format: json
 
 
 
+#- set_fact: 
+#    NSFGUID: "{{item.guid}}"
+#  with_items: "{{joblist.json.jobs}}"
+#  when: item.name == "nfs_server"
 
-
-
-- set_fact: 
-    MYSQLGUID: "{{item.guid}}"
-  with_items: "{{joblist.json.jobs}}"
-  when: item.name == "mysql"
-
-- name: Check and Obtain Elastic Runtime's GUID 
-  uri:
-    url: "https://{{Route53Record}}/api/v0/staged/products/{{ProductGUID}}/jobs/{{MYSQLGUID}}/resource_config"
-    return_content: yes
-    method: PUT
-    validate_certs: no
-    headers:
-      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
-      Content-Type: "application/json"
-    body: 
-      instance_type:
-        id: automatic
-      instances: 1
-      elb_names: []
-      internet_connected: false
-      persistent_disk:
-        size_mb: '20480'
-    body_format: json
+#- name: Check and Obtain Elastic Runtime's GUID 
+#  uri:
+#    url: "https://{{Route53Record}}/api/v0/staged/products/{{ProductGUID}}/jobs/{{NSFGUID}}/resource_config"
+#    return_content: yes
+#    method: PUT
+#    validate_certs: no
+#    headers:
+#      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+#      Content-Type: "application/json"
+#    body: 
+#      instance_type:
+#        id: automatic
+#      instances: 0
+#      elb_names: []
+#      internet_connected: false
+#      persistent_disk:
+#        size_mb: '102400'
+#    body_format: json
 
 
 
 
 
 
-- set_fact: 
-    DiegoCellGUID: "{{item.guid}}"
-  with_items: "{{joblist.json.jobs}}"
-  when: item.name == "diego_cell"
+#- set_fact: 
+#    MYSQLGUID: "{{item.guid}}"
+#  with_items: "{{joblist.json.jobs}}"
+#  when: item.name == "mysql"
 
-- name: Check and Obtain Elastic Runtime's GUID 
-  uri:
-    url: "https://{{Route53Record}}/api/v0/staged/products/{{ProductGUID}}/jobs/{{DiegoCellGUID}}/resource_config"
-    return_content: yes
-    method: PUT
-    validate_certs: no
-    headers:
-      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
-      Content-Type: "application/json"
-    body: 
-      instance_type:
-        id: r3.large
-      instances: 2
-      elb_names: []
-      internet_connected: false
-    body_format: json
+#- name: Check and Obtain Elastic Runtime's GUID 
+#  uri:
+#    url: "https://{{Route53Record}}/api/v0/staged/products/{{ProductGUID}}/jobs/{{MYSQLGUID}}/resource_config"
+#    return_content: yes
+#    method: PUT
+#    validate_certs: no
+#    headers:
+#      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+#      Content-Type: "application/json"
+#    body: 
+#      instance_type:
+#        id: automatic
+#      instances: 1
+#      elb_names: []
+#      internet_connected: false
+#      persistent_disk:
+#        size_mb: '20480'
+#    body_format: json
+
+
+
+
+
+
+#- set_fact: 
+#    DiegoCellGUID: "{{item.guid}}"
+#  with_items: "{{joblist.json.jobs}}"
+#  when: item.name == "diego_cell"
+#
+#- name: Check and Obtain Elastic Runtime's GUID 
+#  uri:
+#    url: "https://{{Route53Record}}/api/v0/staged/products/{{ProductGUID}}/jobs/{{DiegoCellGUID}}/resource_config"
+#    return_content: yes
+#    method: PUT
+#    validate_certs: no
+#    headers:
+#      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+#      Content-Type: "application/json"
+#    body: 
+#      instance_type:
+#        id: r3.large
+#      instances: 2
+#      elb_names: []
+#      internet_connected: false
+#    body_format: json
+
 
 
 - name: Initiate the Installation Process of Elastic Runtime
@@ -418,7 +368,7 @@
 
 
 - pause:
-    minutes: 10
+    minutes: 20
     prompt: "Waiting 10 minutes before checking Ops Manager director Installation Status"
 
 - name: Check the status of the Installation to see if Elastic Runtime is installed or not
