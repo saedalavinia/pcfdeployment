@@ -21,7 +21,7 @@
 
 
 - name: Execute Shell Script
-  shell: "curl https://{{Route53Record}}/api/v0/available_products -v -k -X POST -H 'Authorization:\ Bearer {{UAA_ACCESS_TOKEN}}' -F product[file]=@/home/saedalav/Documents/PCF/roles/elasticruntimeupload/files/cf.pivotal"
+  shell: "curl https://{{Route53Record}}/api/v0/available_products -v -k -X POST -H 'Authorization:\ Bearer {{UAA_ACCESS_TOKEN}}' -F product[file]=@{{ElasticRuntimeFilePath}}"
 #  comman: "roles/elasticruntimeupload/files/curl.sh  {{UAA_ACCESS_TOKEN}}"
   register: output
 
