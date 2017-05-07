@@ -1,12 +1,12 @@
 #!/bin/bash
 
 email=saedalav@gmail.com
-output_path=/home/saedalav/Desktop/output.txt
-root_directory=/home/saedalav/Documents/PCF
+output_path=/home/ec2-user/output.txt
+root_directory=/home/ec2-user/pcfdeployment
 
 cd $root_directory
 
-source /home/saedalav/.bashrc
+source /home/ec2-user/.bashrc
 
 
 echo "Starting Ansible Commands"
