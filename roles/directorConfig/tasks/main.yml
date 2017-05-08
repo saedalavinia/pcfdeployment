@@ -29,6 +29,7 @@
 # Gather FActs on the output of the Cloudformation Stack named "{{StackName}}"
 - name: Gathering Facts About Cloud Formation Stack
   cloudformation_facts:
+    region: "{{Region}}"
     stack_name: '{{StackName}}'
     all_facts: false
   register: stack_facts

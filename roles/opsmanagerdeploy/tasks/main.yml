@@ -8,7 +8,7 @@
 - name: Gathering Facts About Cloud Formation Stack
   cloudformation_facts:
     stack_name: '{{StackName}}'
-	region: "{{Region}}"
+    region: "{{Region}}"
     all_facts: false
   register: stack_facts
 
