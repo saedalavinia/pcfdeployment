@@ -144,6 +144,16 @@
     body_format: json
 
 
+- name: Create a Route53 CNAME for The Entire Domain
+  route53:
+      command: create
+      zone: "{{Route53Zone}}"
+      record: "*.{{Route53Zone}}"
+      type: CNAME
+      value: "{{PcfElbDnsName}}"
+      ttl: 30
+
+	
 
 - name: Create a Route53 CNAME for Runtime System Domain
   route53:
