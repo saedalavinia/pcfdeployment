@@ -20,7 +20,7 @@
       05RdsUsername: "{{RdsUsername}}"
       06RdsPassword: "{{RdsPassword}}"
       07SSLCertificateARN: "{{SSLCertificateARN}}"
-      08OpsManagerTemplate: "{{OpsManagerTemplate}}"
+#     08OpsManagerTemplate: "{{OpsManagerTemplate}}"
 #     09ElbPrefix: "{{ElbPrefix}}"
 #     10AllowHttpOnElb: "{{AllowHttpOnElb}}"
   register: stack
