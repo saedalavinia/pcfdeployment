@@ -19,4 +19,9 @@ KeyPair: us-east-1
 ssh_private_key: "{{ lookup('file', '~/.ssh/us-east-1.pem') }}"
 
 
+pushUserName: saedalav
+pushPassword: mypass
+pushEmail: saedalav@gmail.com
+
+
 

@@ -48,10 +48,35 @@
       Content-Type: "application/json"
   register: admin
 
- - set_fact: 
-    AdminUser: "{{admin.json.credential.identity}}"
-    AdminPassword: "{{admin.json.credential.password}}"
+- set_fact: 
+    AdminUser: "{{admin.json.credential.value.identity}}"
+    AdminPassword: "{{admin.json.credential.value.password}}"
 
-	
 - debug: 
-    msg: "Username: {{AdminUser}}    and Password: {{AdminPassword}}"
+    msg: "Username:\ {{AdminUser}}    and Password:\ {{AdminPassword}}"
+
+
+- name: Setting uaac target
+  command: "uaac target https://uaa.{{RuntimeSystemDomain}} --skip-ssl-validation"
+
+
+- name: Setting uaac target
+  command: "uaac token client get {{AdminUser}} -s {{AdminPassword}}"
+
+- name: Create a User
+  command: "uaac user add {{pushUserName}} -p {{pushPassword}} --email {{pushEmail}}"
+
+- name: Give All rights to User (Admin User)
+  command: "uaac member add cloud_controller.admin {{pushUserName}}"
+
+- name: Give All rights to User (Admin User)
+  command: "uaac member add uaa.admin {{pushUserName}}"
+
+- name: Give All rights to User (Admin User)
+  command: "uaac member add scim.read {{pushUserName}}"
+
+- name: Give All rights to User (Admin User)
+  command: "uaac member add scim.write {{pushUserName}}"
+
+
+
