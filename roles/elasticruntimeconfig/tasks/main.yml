@@ -159,7 +159,7 @@
   route53:
       command: create
       zone: "{{Route53Zone}}"
-      record: "{{RuntimeAppDomain}}"
+      record: "*.{{RuntimeAppDomain}}"
       type: CNAME
       value: "{{PcfElbDnsName}}"
       ttl: 30
