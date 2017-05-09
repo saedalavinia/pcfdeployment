@@ -6,11 +6,12 @@
 This project fully automates the deployment of Pivotal Cloud Foundry to AWS. The following dependencies are required: 
 - Ansible 2.0+
 - Python 2.7+
-- Python Boto Library
+- Python Boto Library (Boto, Boto3, Botodev)
 - PCF UAAC (User Accound and Authentication CLI) 
 - Pivotal Cloud Foundry Elastic Runtime 1.10.x Binaries. See here: https://network.pivotal.io/products/elastic-runtime
 - Additionally, you must have AWS_SECRET_ACCESS_ID and AWS_ACCESS_KEY environment variables set and a key for accessing EC2 instances in the desired region must be available.   
 - Note that your AWS Account must allow more than 20 EC2 VMs to be started in your region. 
+- CF-CLI 
 
 This is tested in CentOS7/RHEL7 Environment. A vagrant box & AMI are created, in which only the two environment variables need to be set and a new/existing key from AWS EC2 needs to be placed in ~/.ssh folder. 
 Note: It's best to run this from a control machine hosted in AWS as there is a significant performance increase. 
@@ -18,7 +19,7 @@ Note: It's best to run this from a control machine hosted in AWS as there is a s
 
 # Runnning the Playbook
 
-There are 7 Ansible roles in the project: 
+There are 8 Ansible roles in the project: 
 - cloudformation
 - opsmanagerdeploy
 - directorConfig
@@ -26,6 +27,7 @@ There are 7 Ansible roles in the project:
 - directorInstall
 - elasticruntimeupload
 - elastricruntimeconfig
+- createpushuser
 
 Before you can run the roles separately or by using the deployAll.yml playbook, the var/main.yml in each role must be set to your preferred values. 
 
@@ -71,3 +73,10 @@ This role uploads the image for elasticruntime (appx 6.1 GB) and neeeds to be av
 
 ###### elastricruntimeconfig
 This role check to see if elasticruntime is available, stages it, configures it, and then initiates an install. This step creates 21 EC2 images and you must have increased your AWS account limit in order to perform this.
+
+
+###### createpushuser
+Once Elastic Runtime is deployed, this role uses UAAC to create a new Admin username and password, as well as creating a new Org and Space for the user. After this, the user will be able to push apps by: 
+ 'cf api https:/api.SYSTEMDOMAIN'
+ 'cf login -u USERNAME -p PASSWORD -o ORG -s SPACE'
+ 'cf push APPNAME' (or alternatively use manifest.yml
