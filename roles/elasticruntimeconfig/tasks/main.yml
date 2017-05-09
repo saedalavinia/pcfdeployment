@@ -153,8 +153,6 @@
       value: "{{PcfElbDnsName}}"
       ttl: 30
 
-	
-
 - name: Create a Route53 CNAME for Runtime System Domain
   route53:
       command: create
