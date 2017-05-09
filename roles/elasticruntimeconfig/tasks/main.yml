@@ -276,14 +276,6 @@
 
 
 
-
-
-
-
-
-
-
-
 #- set_fact: 
 #    NSFGUID: "{{item.guid}}"
 #  with_items: "{{joblist.json.jobs}}"
@@ -342,27 +334,27 @@
 
 
 
-#- set_fact: 
-#    DiegoCellGUID: "{{item.guid}}"
-#  with_items: "{{joblist.json.jobs}}"
-#  when: item.name == "diego_cell"
-#
-#- name: Check and Obtain Elastic Runtime's GUID 
-#  uri:
-#    url: "https://{{Route53Record}}/api/v0/staged/products/{{ProductGUID}}/jobs/{{DiegoCellGUID}}/resource_config"
-#    return_content: yes
-#    method: PUT
-#    validate_certs: no
-#    headers:
-#      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
-#      Content-Type: "application/json"
-#    body: 
-#      instance_type:
-#        id: r3.large
-#      instances: 2
-#      elb_names: []
-#      internet_connected: false
-#    body_format: json
+- set_fact: 
+    DiegoCellGUID: "{{item.guid}}"
+  with_items: "{{joblist.json.jobs}}"
+  when: item.name == "diego_cell"
+
+- name: Check and Obtain Elastic Runtime's GUID 
+  uri:
+    url: "https://{{Route53Record}}/api/v0/staged/products/{{ProductGUID}}/jobs/{{DiegoCellGUID}}/resource_config"
+    return_content: yes
+    method: PUT
+    validate_certs: no
+    headers:
+      Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
+      Content-Type: "application/json"
+    body: 
+      instance_type:
+        id: r4.large
+      instances: 2
+      elb_names: []
+      internet_connected: false
+    body_format: json
 
 
 
