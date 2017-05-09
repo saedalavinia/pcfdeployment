@@ -8,6 +8,11 @@ cd $root_directory
 
 source /home/ec2-user/.bashrc
 
+echo "Pulling the latest updates from Git"
+echo "-----------------------------------"
+
+git pull
+
 
 echo "Starting Ansible Commands"
 echo "-------------------------"
