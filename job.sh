@@ -11,7 +11,8 @@ source /home/ec2-user/.bashrc
 echo "Pulling the latest updates from Git"
 echo "-----------------------------------"
 
-git pull
+git checkout master
+git pull origin master
 
 
 echo "Starting Ansible Commands"
