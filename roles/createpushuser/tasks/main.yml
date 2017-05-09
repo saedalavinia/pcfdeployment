@@ -39,7 +39,7 @@
 
 - name: Getting Admin Credentials
   uri:
-    url: "https://{{Route53Record}}/api/v0/deployed/products/{{ProductGUID}}/credentials/.uaa.admin_credentials"
+    url: "https://{{Route53Record}}/api/v0/deployed/products/{{ProductGUID}}/credentials/.uaa.admin_client_credentials"
     return_content: yes
     method: GET
     validate_certs: no
@@ -79,4 +79,10 @@
   command: "uaac member add scim.write {{pushUserName}}"
 
 
+- name: Setup Cloud Foundry via CommandLine. add API Target, Login, and Create Org and Space
+  command: "cf api 'https://api.{{RuntimeSystemDomain}}'"
+- command: "cf login -u {{pushUserName}} -p {{pushPassword}} -o '' -s ''"
+- command: "cf create-org {{defaultOrg}}"
+- command: "cf create-space {{defaultSpace}} -o {{defaultOrg}}"
+- command: "cf target -o {{defaultOrg}} -s {{defaultSpace}}"
 

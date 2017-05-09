@@ -24,4 +24,5 @@ pushPassword: mypass
 pushEmail: saedalav@gmail.com
 
 
-
+defaultOrg: myOrg
+defaultSpace: mySpace

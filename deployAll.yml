@@ -65,6 +65,11 @@
   roles: 
    - elasticruntimeconfig
 
+- name: Configure PCF with an Admin Username and Pass that can push 
+  hosts: localhost
+  connection: local
+  roles:
+    - createpushuser
 
 
 
