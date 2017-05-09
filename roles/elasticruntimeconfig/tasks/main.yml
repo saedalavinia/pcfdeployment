@@ -382,12 +382,12 @@
 
 
 - pause:
-    minutes: 20
-    prompt: "Waiting 10 minutes before checking Ops Manager director Installation Status"
+    minutes: 60
+    prompt: "Waiting an hour before checking Elastic Runtime Installation Status"
 
 - name: Check the status of the Installation to see if Elastic Runtime is installed or not
   uri:
-    url: "https://{{Route53Record}}/api/v0/installations/1"
+    url: "https://{{Route53Record}}/api/v0/installations/2"
     return_content: yes
     method: GET
     validate_certs: no
@@ -395,8 +395,8 @@
       Authorization: "Bearer {{UAA_ACCESS_TOKEN}}" 
       Content-Type: "application/json"
     body_format: json
-  retries: 10
-  delay: 60
+  retries: 20
+  delay: 300
   register: status
   until: status.json.status=="succeeded"
   ignore_errors: yes
