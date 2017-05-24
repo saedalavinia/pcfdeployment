@@ -3,6 +3,8 @@
 - Email: saedalav@gmail.com
 - Github: github.com/saedalav 
 
+Note: This is a only a summary. For a full description of how to setup this project, please see https://github.com/saedalav/pcfdeployment/blob/master/SETUP.md
+
 This project fully automates the deployment of Pivotal Cloud Foundry to AWS. The following dependencies are required: 
 - Ansible 2.0+
 - Python 2.7+
